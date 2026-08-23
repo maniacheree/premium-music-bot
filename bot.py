@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 
 
 # ==================================================
-# PREMIUM EMOJIS
+# PREMIUM CUSTOM EMOJIS
 # ==================================================
 
 MUSIC = '<tg-emoji emoji-id="5463107823946717464">🎵</tg-emoji>'
@@ -76,7 +76,6 @@ HISTORY = '<tg-emoji emoji-id="5467538555158943525">📅</tg-emoji>'
 async def is_joined(bot, user_id):
 
     try:
-
         member = await bot.get_chat_member(
             chat_id=FORCE_CHANNEL,
             user_id=user_id,
@@ -91,7 +90,7 @@ async def is_joined(bot, user_id):
     except Exception as e:
 
         logger.error(
-            "Force join error: %s",
+            "Force join check failed: %s",
             e,
         )
 
@@ -131,7 +130,6 @@ async def send_home(update, context):
     )
 
     keyboard = [
-
         [
             InlineKeyboardButton(
                 "🔎 Search Music",
@@ -213,29 +211,29 @@ async def start(update, context):
 
         text = (
             f"{MUSIC} <b>Premium Music Bot</b>\n\n"
+
             "🔒 <b>Join Required</b>\n\n"
+
             "Bot use karne ke liye pehle "
             "hamara channel join karo.\n\n"
+
             f"{DOWNLOAD} Join karne ke baad "
             "<b>I've Joined</b> press karo."
         )
 
         keyboard = [
-
             [
                 InlineKeyboardButton(
                     "📢 Join Channel",
                     url="https://t.me/mani_bio",
                 )
             ],
-
             [
                 InlineKeyboardButton(
                     "✅ I've Joined",
                     callback_data="check_join",
                 )
             ],
-
         ]
 
         await update.message.reply_text(
@@ -265,9 +263,9 @@ async def callbacks(update, context):
     await query.answer()
 
 
-    # ==============================================
+    # ==================================================
     # CHECK JOIN
-    # ==============================================
+    # ==================================================
 
     if query.data == "check_join":
 
@@ -285,7 +283,10 @@ async def callbacks(update, context):
 
             return
 
-        await query.message.delete()
+        try:
+            await query.message.delete()
+        except Exception:
+            pass
 
         await send_home(
             update,
@@ -295,29 +296,28 @@ async def callbacks(update, context):
         return
 
 
-    # ==============================================
+    # ==================================================
     # SEARCH MUSIC
-    # ==============================================
+    # ==================================================
 
     if query.data == "search_music":
 
-        context.user_data[
-            "waiting_for_music"
-        ] = True
-
         await query.message.reply_text(
             f"{SEARCH} <b>Music Search</b>\n\n"
+
             f"{AUDIO} Song ya artist ka naam bhejo.\n\n"
+
             "Example: <code>Imagine Dragons</code>",
+
             parse_mode=ParseMode.HTML,
         )
 
         return
 
 
-    # ==============================================
+    # ==================================================
     # PROFILE
-    # ==============================================
+    # ==================================================
 
     if query.data == "profile":
 
@@ -348,9 +348,9 @@ async def callbacks(update, context):
         return
 
 
-    # ==============================================
+    # ==================================================
     # HELP
-    # ==============================================
+    # ==================================================
 
     if query.data == "help":
 
@@ -368,15 +368,16 @@ async def callbacks(update, context):
         return
 
 
-    # ==============================================
+    # ==================================================
     # VIP
-    # ==============================================
+    # ==================================================
 
     if query.data == "vip":
 
         await query.message.reply_text(
 
             f"{CROWN} <b>VIP System</b>\n\n"
+
             f"{PREMIUM} VIP features coming soon.",
 
             parse_mode=ParseMode.HTML,
@@ -385,9 +386,9 @@ async def callbacks(update, context):
         return
 
 
-    # ==============================================
+    # ==================================================
     # OTHER BUTTONS
-    # ==============================================
+    # ==================================================
 
     if query.data in (
         "player",
@@ -400,6 +401,7 @@ async def callbacks(update, context):
         await query.message.reply_text(
 
             f"{FAST} <b>Coming Soon</b>\n\n"
+
             "This module is being prepared.",
 
             parse_mode=ParseMode.HTML,
@@ -409,7 +411,7 @@ async def callbacks(update, context):
 
 
 # ==================================================
-# TEXT MESSAGE TEST
+# TEXT MESSAGE HANDLER
 # ==================================================
 
 async def music_search_input(update, context):
@@ -426,26 +428,9 @@ async def music_search_input(update, context):
         return
 
 
-    # ==============================================
-    # ONLY ACCEPT SEARCH INPUT
-    # ==============================================
-
-    if not context.user_data.get(
-        "waiting_for_music",
-        False,
-    ):
-        return
-
-
-    # Stop waiting
-    context.user_data[
-        "waiting_for_music"
-    ] = False
-
-
-    # ==============================================
-    # TEST RESPONSE
-    # ==============================================
+    # ==================================================
+    # DIRECT TEST RESPONSE
+    # ==================================================
 
     await update.message.reply_text(
 
@@ -469,6 +454,7 @@ async def user_id(update, context):
     await update.message.reply_text(
 
         f"{USER} <b>Your Telegram ID</b>\n\n"
+
         f"<code>{user.id}</code>",
 
         parse_mode=ParseMode.HTML,
@@ -518,9 +504,9 @@ def main():
     )
 
 
-    # ==============================================
+    # ==================================================
     # COMMANDS
-    # ==============================================
+    # ==================================================
 
     application.add_handler(
         CommandHandler(
@@ -544,9 +530,9 @@ def main():
     )
 
 
-    # ==============================================
-    # BUTTONS
-    # ==============================================
+    # ==================================================
+    # INLINE BUTTONS
+    # ==================================================
 
     application.add_handler(
         CallbackQueryHandler(
@@ -555,31 +541,30 @@ def main():
     )
 
 
-    # ==============================================
+    # ==================================================
     # NORMAL TEXT
-    # ==============================================
+    # ==================================================
 
     application.add_handler(
         MessageHandler(
-            filters.TEXT
-            & ~filters.COMMAND,
+            filters.TEXT & ~filters.COMMAND,
             music_search_input,
         )
     )
 
 
-    # ==============================================
+    # ==================================================
     # ERROR HANDLER
-    # ==============================================
+    # ==================================================
 
     application.add_error_handler(
         error_handler
     )
 
 
-    # ==============================================
+    # ==================================================
     # START BOT
-    # ==============================================
+    # ==================================================
 
     logger.info(
         "Premium Music Bot started."
